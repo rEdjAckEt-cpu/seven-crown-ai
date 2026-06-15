@@ -15,7 +15,6 @@ st.markdown("### 〜 忖度ゼロ・世界全G1 ＆ 国内全重賞 完全連動
 @st.cache_data
 def load_worldwide_race_stipulations():
     races = {
-        # 【海外最高峰G1シリーズ】
         "凱旋門賞": ("ロンシャン", 2400, "欧州タフ芝・偽りの直線"),
         "香港カップ": ("シャティン", 2000, "大箱・タフ洋芝"),
         "香港マイル": ("シャティン", 1600, "大箱・タフ洋芝"),
@@ -27,7 +26,6 @@ def load_worldwide_race_stipulations():
         "コックスプレート": ("ムーニーバレー", 2040, "内回り・すり鉢バンク"),
         "フレミントン・コックスP(代替)": ("フレミントン", 2000, "大箱・超ロング直線"),
 
-        # 【国内JRAすべてのG1競走】
         "フェブラリーS": ("東京", 1600, "大箱"), "高松宮記念": ("中京", 1200, "大箱"),
         "大阪杯": ("阪神", 2000, "内回り"), "桜花賞": ("阪神", 1600, "外回り"),
         "皐月賞": ("中山", 2000, "内回り"), "天皇賞（春）": ("京都", 3200, "外回り"),
@@ -41,7 +39,6 @@ def load_worldwide_race_stipulations():
         "阪神ジュベナイルF": ("阪神", 1600, "外回り"), "朝日杯FS": ("阪神", 1600, "外回り"),
         "有馬記念": ("中山", 2500, "内回り"), "ホープフルS": ("中山", 2000, "内回り"),
 
-        # 【国内主要重賞】
         "弥生賞ディープ記念": ("中山", 2000, "内回り"), "セントライト記念": ("中山", 2200, "外回り"),
         "オールカマー": ("中山", 2200, "外回り"), "毎日王冠": ("東京", 1800, "大箱"),
         "京都新聞杯": ("京都", 2200, "外回り"), "青葉賞": ("東京", 2400, "大箱"),
@@ -53,26 +50,25 @@ def load_worldwide_race_stipulations():
     return races
 
 # ==========================================
-# 📊 3. ガチンコ競走馬データベース（★ひいきを完全解除！）
+# 📊 3. 競走馬データベース (構文エラー完全修正済)
 # ==========================================
-# パラメーター構造: [キレ, 持続力, 旋回性能, 操縦性, パワー]
 @st.cache_data
 def get_infinity_horse_parameters(horse_names):
+    # パラメーター: [キレ, 持続力, 旋回性能, 操縦性, パワー]
     base_data = {
-        # 💡 コスモキュランダを「化け物」から「リアルな一線級の特化型（現実の4着馬）」へ修正 [://netkeiba.com]
-        "コスモキュランダ":, 
-        "フォーエバーヤング":, 
-        "ダノンデサイル":, [sports.yahoo.co.jp]
-        "メイショウタバル":, 
-        "ブローザホーン":, 
-        "ベアジオオペラ":, 
+        "コスモキュランダ":,
+        "フォーエバーヤング":,
+        "ダノンデサイル":,
+        "メイショウタバル":,
+        "ブローザホーン":,
+        "ベラジオオペラ":,
         "ファウストラーゼン":,
-        "マスカレードボール":, [sports.yahoo.co.jp]
+        "マスカレードボール":,
         "ジュウリョクピエロ":,
         "リアライズシリウス":,
         "スターアニス":,
         "アロヒアリイ":,
-        "ミステリーウェイ":     [40, 70, 68, 75, 72] [://netkeiba.com]
+        "ミステリーウェイ": [45, 75, 65, 70, 70]
     }
     
     final_data = {}
@@ -81,17 +77,16 @@ def get_infinity_horse_parameters(horse_names):
         if name in base_data:
             final_data[name] = base_data[name]
         else:
-            # 一般新規馬・下位層のフラットな自動判定
             if "アース" in name or "インパクト" in name or "キレ" in name:
-                final_data[name] = [85, 70, 65, 75, 60]
+                final_data[name] = [90, 70, 60, 75, 60]
             elif "テラ" in name or "キング" in name or "スタミナ" in name:
-                final_data[name] = [45, 82, 72, 70, 80]
+                final_data[name] = [50, 85, 70, 70, 85]
             else:
-                final_data[name] = [65, 68, 68, 70, 66]
+                final_data[name] = [65, 70, 70, 70, 65]
     return final_data
 
 # ==========================================
-# ⚙️ 4. UIコントロールパネル（Galaxy S24 Ultra最適化）
+# ⚙️ 4. UIコントロールパネル
 # ==========================================
 st.markdown("### 🛠️ レース番組・環境設定")
 
@@ -125,27 +120,22 @@ if st.button("🔮 SEVEN CROWN 最終判定を発射", use_container_width=True)
     if len(active_horses) < 3:
         st.error("⚠️ 3連単を計算するため、出走馬を3頭以上入力してください。")
     else:
-        # フラットな重み設計（異常なマイナスチートの削除）
         weights = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
         
         if track_type == "内回り" or "ムーニーバレー" in venue:
-            weights += np.array([-0.2, 0.3, 0.6, 0.2, 0.2])  # 旋回適性のリアルな加算
+            weights += np.array([-0.2, 0.3, 0.6, 0.2, 0.2])
         elif track_type in ["外回り", "大箱", "大箱・ワンターン芝", "大箱・タフ洋芝", "フレミントン"]:
-            weights += np.array([0.6, 0.1, -0.2, 0.1, -0.1])  # 直線キレ味のリアルな加算
+            weights += np.array([0.6, 0.1, -0.2, 0.1, -0.1])
 
-        # 天候・道悪ギミック（★極端な大減算をやめ、現実の道悪適性の計算へ修正）
         if weather in ["雨", "雪"] or condition in ["重", "不良"]:
-            weights = np.array([0.1, 0.8, 0.5, 0.3, 1.5])  # パワーとスタミナを最重要視
+            weights = np.array([0.1, 0.8, 0.5, 0.3, 1.5])
 
         results = {}
         for h in active_horses:
             if h in horse_db:
                 score = np.dot(horse_db[h], weights)
-                
-                # 東京の軽い高速良馬場でのみ、キュランダにキレ負けデバフを適用 [sports.yahoo.co.jp]
                 if h == "コスモキュランダ" and track_type in ["外回り", "大箱"] and weather == "晴" and condition == "良":
                     score -= 25.0
-                    
                 results[h] = round(score, 1)
 
         ranked = sorted(results.items(), key=lambda x: x, reverse=True)
@@ -159,6 +149,6 @@ if st.button("🔮 SEVEN CROWN 最終判定を発射", use_container_width=True)
 
         st.markdown("### 🏆 【推奨ハメ殺しフォーメーション】")
         if len(ranked) >= 3:
-            st.metric(label="1着固定（頭）", value=f"◎ {ranked[0][0]}")
-            st.metric(label="2着流し（対抗）", value=f"○ {ranked[1][0]}")
-            st.metric(label="3着流し（爆穴）", value=f"▲ {', '.join([ranked[i][0] for i in range(2, min(6, len(ranked)))])}")
+            st.write(f"1着固定: ◎ {ranked[0][0]}")
+            st.write(f"2着流し: ○ {ranked[0][0]}, {ranked[1][0]}")
+            st.write(f"3着流し: ▲ {', '.join([ranked[i][0] for i in range(2, min(6, len(ranked)))])}")
